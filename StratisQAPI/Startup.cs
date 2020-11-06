@@ -2,14 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StratisQAPI.Data;
+using StratisQAPI.Entities;
 
 namespace StratisQAPI
 {
@@ -25,7 +32,56 @@ namespace StratisQAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddIdentity<ApplicationUser, IdentityRole>(cfg =>
+            {
+                cfg.User.RequireUniqueEmail = true;
+                cfg.Password.RequireDigit = false;
+                cfg.Password.RequiredLength = 5;
+                cfg.Password.RequireLowercase = false;
+                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireUppercase = false;
+            }).
+            AddEntityFrameworkStores<StratisQDbContext>().
+            AddDefaultTokenProviders();
+            services.AddSwaggerGen(settings =>
+            {
+                settings.SwaggerDoc("v1", new OpenApiInfo { Title = "StratisQ API", Version = "v1" });
+                settings.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+            });
+
+            services.AddAuthentication().
+            AddJwtBearer(cfg => {
+                cfg.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://stratisq.co.za:81",
+                    ValidAudience = "https://stratisq.co.za:80",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersedkjhulfgyuerfw344cret"))
+                };
+
+            });
+
+            services.AddDbContext<StratisQDbContext>
+            (options => options.UseSqlServer(Configuration.GetConnectionString("StratisQDbContext")));
+            //services.AddTransient<Seed>();
+            services.AddDirectoryBrowser();
+
+            services.AddCors(cfg => {
+
+                cfg.AddPolicy(name: "CorsPolicy",
+                    builder => builder
+                    .WithOrigins("https://stratisq.co.za:80", "http://localhost:4200")
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader().Build()
+                    );
+            });
+
+
+            services.AddCors();
+            services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +98,16 @@ namespace StratisQAPI
 
             app.UseAuthorization();
 
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+            app.UseCors("CorsPolicy");
+            app.UseAuthorization();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "StratisQ API V1");
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
