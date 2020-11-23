@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StratisQAPI.Data;
 using StratisQAPI.Entities;
+using StratisQAPI.Helpers;
 
 namespace StratisQAPI
 {
@@ -41,7 +42,7 @@ namespace StratisQAPI
                 cfg.Password.RequireNonAlphanumeric = false;
                 cfg.Password.RequireUppercase = false;
             }).
-            AddEntityFrameworkStores<StratisQDbContext>().
+            AddEntityFrameworkStores<StratisQDbContextUsers>().
             AddDefaultTokenProviders();
             services.AddSwaggerGen(settings =>
             {
@@ -64,8 +65,11 @@ namespace StratisQAPI
 
             services.AddDbContext<StratisQDbContext>
             (options => options.UseSqlServer(Configuration.GetConnectionString("StratisQDbContext")));
-            //services.AddTransient<Seed>();
-            services.AddDirectoryBrowser();
+
+            services.AddDbContext<StratisQDbContextUsers>
+            (options => options.UseSqlServer(Configuration.GetConnectionString("StratisQDbUsersContext")));
+
+            services.AddTransient<Seed>();
 
             services.AddCors(cfg => {
 
@@ -79,18 +83,21 @@ namespace StratisQAPI
             });
 
 
-            services.AddCors();
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, Seed seed)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            seed.SaveTenant();
+            seed.SeedUser();
+            seed.SeedRoles();
 
             app.UseHttpsRedirection();
 

@@ -7,7 +7,6 @@ C:\StratisQ_IT\StratisQSoftware\StratisQAPI\bin\Debug\netcoreapp3.1\StratisQAPI.
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\bin\Debug\netcoreapp3.1\StratisQAPI.runtimeconfig.dev.json
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\bin\Debug\netcoreapp3.1\StratisQAPI.dll
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\bin\Debug\netcoreapp3.1\StratisQAPI.pdb
-C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.csprojAssemblyReference.cache
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.AssemblyInfoInputs.cache
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.AssemblyInfo.cs
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.RazorTargetAssemblyInfo.cache
@@ -75,3 +74,4 @@ C:\StratisQ_IT\StratisQSoftware\StratisQAPI\bin\Debug\netcoreapp3.1\Microsoft.En
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.csproj.CoreCompileInputs.cache
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.MvcApplicationPartsAssemblyInfo.cs
 C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.MvcApplicationPartsAssemblyInfo.cache
+C:\StratisQ_IT\StratisQSoftware\StratisQAPI\obj\Debug\netcoreapp3.1\StratisQAPI.csprojAssemblyReference.cache
