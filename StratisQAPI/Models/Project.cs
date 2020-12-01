@@ -11,6 +11,7 @@ namespace StratisQAPI.Models
         public int SurveyId { get; set; }
         public int TenantId { get; set; }
         public int ClientId { get; set; }
+        public int AssetNodeId { get; set; }
         public string Reference { get; set; }
         public DateTime DateStamp { get; set; }
         public DateTime StartDate { get; set; }

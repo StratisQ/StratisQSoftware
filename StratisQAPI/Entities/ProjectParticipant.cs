@@ -10,5 +10,7 @@ namespace StratisQAPI.Entities
         public int ProjectParticipantId { get; set; }
         public int ProjectId { get; set; }
         public int ParticipantId { get; set; }
+        public bool IsParticipated { get; set; }
+        public bool IsAcknowledged { get; set; }
     }
 }

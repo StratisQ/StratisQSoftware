@@ -9,6 +9,7 @@ namespace StratisQAPI.Entities
     public class Client
     {
         public int ClientId { get; set; }
+        public Guid ClientIdentifier { get; set; }
         public int IndustryId { get; set; }
         [ForeignKey("TenantId")]
         public Industry Industry { get; set; }
@@ -20,8 +21,6 @@ namespace StratisQAPI.Entities
         public string RegistrationNumber { get; set; }
         public string TelephoneNumber { get; set; }
         public int TenantId { get; set; }
-        //[ForeignKey("TenantId")]
-        //public Tenant Tenant { get; set; }
         public string VatNumber { get; set; }
         public string Website { get; set; }
     }

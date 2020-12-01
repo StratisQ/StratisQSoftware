@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using StratisQAPI.Data;
 using StratisQAPI.Entities;
 using StratisQAPI.Helpers;
+using StratisQAPI.Services;
 
 namespace StratisQAPI
 {
@@ -56,8 +57,10 @@ namespace StratisQAPI
                 {
                     ValidateAudience = true,
                     ValidateIssuer = true,
-                    ValidIssuer = "https://stratisq.co.za:81",
-                    ValidAudience = "https://stratisq.co.za:80",
+                    //ValidIssuer = "http://qaapi.stratisq.co.za:81",
+                    //ValidAudience = "http://qa.stratisq.co.za",
+                    ValidIssuer = "https://localhost:44391",
+                    ValidAudience = "http://localhost:4200",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("mysupersedkjhulfgyuerfw344cret"))
                 };
 
@@ -70,12 +73,13 @@ namespace StratisQAPI
             (options => options.UseSqlServer(Configuration.GetConnectionString("StratisQDbUsersContext")));
 
             services.AddTransient<Seed>();
+            services.AddSingleton<IHostedService, MyServiceA>();
 
             services.AddCors(cfg => {
 
                 cfg.AddPolicy(name: "CorsPolicy",
                     builder => builder
-                    .WithOrigins("https://stratisq.co.za:80", "http://localhost:4200")
+                    .WithOrigins("http://qa.stratisq.co.za", "http://localhost:4200")
                     .AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader().Build()

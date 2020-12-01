@@ -26,6 +26,9 @@ namespace StratisQAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<Guid>("AssetNodeIdentifier")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
@@ -127,6 +130,9 @@ namespace StratisQAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<Guid>("ClientIdentifier")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DateStamp")
                         .HasColumnType("datetime2");
@@ -258,6 +264,66 @@ namespace StratisQAPI.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("StratisQAPI.Entities.EmployeeBiographic", b =>
+                {
+                    b.Property<int>("EmployeeBiographicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BiographicDetailId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BiographicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BiographicName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsBiographicDetail")
+                        .HasColumnType("bit");
+
+                    b.HasKey("EmployeeBiographicId");
+
+                    b.ToTable("EmployeeBiographics");
+                });
+
+            modelBuilder.Entity("StratisQAPI.Entities.EmployeeBiographicDetail", b =>
+                {
+                    b.Property<int>("EmployeeBiographicDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BiographicDetailId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BiographicId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EmployeeBiographicDetailId");
+
+                    b.ToTable("EmployeeBiographicDetails");
+                });
+
             modelBuilder.Entity("StratisQAPI.Entities.Industry", b =>
                 {
                     b.Property<int>("IndustryId")
@@ -346,6 +412,9 @@ namespace StratisQAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("AssetNodeId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
@@ -364,11 +433,23 @@ namespace StratisQAPI.Migrations
                     b.Property<DateTime>("FirstReminder")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsEscalateSent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFirstReminderSent")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsProjectStarted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSecondReminderSent")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProjectIdentifier")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Reference")
                         .HasColumnType("nvarchar(max)");
@@ -396,6 +477,12 @@ namespace StratisQAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsAcknowledged")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsParticipated")
+                        .HasColumnType("bit");
 
                     b.Property<int>("ParticipantId")
                         .HasColumnType("int");
@@ -447,6 +534,9 @@ namespace StratisQAPI.Migrations
 
                     b.Property<int>("RatingScale")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("SurveIdentifier")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Version")
                         .HasColumnType("nvarchar(max)");

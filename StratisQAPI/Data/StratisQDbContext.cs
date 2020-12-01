@@ -30,5 +30,7 @@ namespace StratisQAPI.Data
         public DbSet<ProjectParticipant> ProjectParticipants { get; set; }
         public DbSet<RemoveProjectParticipant> RemoveProjectParticipants { get; set; }
         public DbSet<KickOffProject> KickOffProjects { get; set; }
+        public DbSet<EmployeeBiographic> EmployeeBiographics { get; set; }
+        public DbSet<EmployeeBiographicDetail> EmployeeBiographicDetails { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using StratisQAPI.Data;
 using StratisQAPI.Entities;
 using StratisQAPI.Models;
+using BiographicDetail = StratisQAPI.Entities.BiographicDetail;
 
 namespace StratisQAPI.Controllers
 {
@@ -52,6 +53,7 @@ namespace StratisQAPI.Controllers
                 RegistrationNumber = result.RegistrationNumber,
                 VatNumber = result.VatNumber,
                 ClientId = result.ClientId,
+                Identifier = result.ClientIdentifier,
                 TenantId = result.TenantId
             });
 
@@ -150,6 +152,23 @@ namespace StratisQAPI.Controllers
                 _context.Biographics.Add(biographic);
                 _context.SaveChanges();
 
+                List<Employee> employees = _context.Employees.Where(id => id.ClientId == model.ClientId).ToList();
+
+                foreach (var e in employees)
+                {
+                    EmployeeBiographic employeeBiographic = new EmployeeBiographic();
+                    employeeBiographic.ClientId = model.ClientId;
+                    employeeBiographic.DateStamp = DateTime.Now;
+                    employeeBiographic.EmployeeId = e.EmployeeId;
+                    employeeBiographic.BiographicId = biographic.BiographicId;
+                    employeeBiographic.BiographicName = model.Name;
+                    employeeBiographic.BiographicDetailId = 0;
+
+                    _context.EmployeeBiographics.Add(employeeBiographic);
+                }
+
+                _context.SaveChanges();
+
                 return Ok();
             }
             catch (Exception Ex)
@@ -193,6 +212,7 @@ namespace StratisQAPI.Controllers
                 client.TenantId = tenantId;
                 client.VatNumber = model.VatNumber;
                 client.Website = model.Website;
+                client.ClientIdentifier = Guid.NewGuid();
 
                 _context.Clients.Add(client);
                 _context.SaveChanges();

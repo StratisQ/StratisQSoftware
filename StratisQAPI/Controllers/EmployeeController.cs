@@ -146,6 +146,7 @@ namespace StratisQAPI.Controllers
 
                     _context.Employees.Add(employee);
                     _context.SaveChanges();
+
                 }
 
 

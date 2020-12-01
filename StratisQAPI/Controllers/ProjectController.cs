@@ -50,7 +50,8 @@ namespace StratisQAPI.Controllers
                 EndDate = result.EndDate.ToString("dd MMM yyyy"),
                 StartDate = result.StartDate.ToString("dd MMM yyyy"),
                 DateStamp = result.DateStamp,
-                Reeference = _contextUsers.Users.FirstOrDefault(id => id.Id == result.Reference).FirstName
+                Reeference = _contextUsers.Users.FirstOrDefault(id => id.Id == result.Reference).FirstName,
+                Guid = result.ProjectIdentifier
             });
 
             return Ok(projects);
@@ -112,7 +113,7 @@ namespace StratisQAPI.Controllers
                 {
                     IsBodyHtml = true,
                     Subject = "Survey Invitation",
-                    Body = "<html><body><p>The project will run from " + pp.StartDate.ToString("dd MMM yyyy") + " to " + pp.EndDate.ToString("dd MMM yyyy") + " please make sure that you complete your survey before the deadline.</p>" +
+                    Body = "<html><body><p>Hi "+employee.Name+", This project will run from " + pp.StartDate.ToString("dd MMM yyyy") + " to " + pp.EndDate.ToString("dd MMM yyyy") + ". Please make sure that you complete your survey before the deadline.</p>" +
                     $"<p>To access the survey: <a href='{url}'>Click here</a></p><br><h3>StratisQ Online</h3></body></html>"
                 })
                 {
@@ -173,13 +174,14 @@ namespace StratisQAPI.Controllers
                     List<Employee> employees = new List<Employee>();
                     foreach (var employeeId in participantId)
                     {
-                        employees.Add(_context.Employees.FirstOrDefault(id => id.EmployeeId == employeeId));
+                        employees.Add(_context.Employees.FirstOrDefault(id => id.EmployeeId == employeeId)); 
                     }
 
                     //Send emails to receipients
                     foreach (var employee in employees)
                     {
-                        string url = $"{_configuration["FrontEndUrl"]}/#/CustomSurvey?user={employee.Identifier}&survey={model.ProjectId}";
+                        Project ppp = _context.Projects.FirstOrDefault(id => id.ProjectId == model.ProjectId);
+                        string url = $"{_configuration["FrontEndUrl"]}/#/CustomSurvey?user={employee.Identifier}&survey={ppp.ProjectIdentifier}";
 
 
                         var smtp = new SmtpClient
@@ -198,12 +200,16 @@ namespace StratisQAPI.Controllers
                         {
                             IsBodyHtml = true,
                             Subject = "Survey Invitation",
-                            Body = "<html><body><p>The project will run from "+pp.StartDate.ToString("dd MMM yyyy")+" to "+ pp.EndDate.ToString("dd MMM yyyy") + " please make sure that you complete your survey before the deadline.</p>" +
-                            $"<p>To access the survey: <a href='{url}'>Click here</a></p></body></html>"
+                            Body = "<html><body><p>Hi " + employee.Name + ", This project will run from " + pp.StartDate.ToString("dd MMM yyyy") + " to " + pp.EndDate.ToString("dd MMM yyyy") + ". Please make sure that you complete your survey before the deadline.</p>" +
+                            $"<p>To access the survey: <a href='{url}'>Click here</a></p><br><h3>StratisQ Online</h3></body></html>"
                         })
                         {
                             smtp.Send(message);
                         }
+
+                        employee.IsSendEmail = true;
+                        _context.Employees.Update(employee);
+                        _context.SaveChanges();
                     }
 
                 }
@@ -268,6 +274,28 @@ namespace StratisQAPI.Controllers
                     return BadRequest("Project with this name for this client already exists.");
                 }
 
+                DateTime firstReminder = model.FirstReminder.AddHours(model.FirstReminderTime.Hours).AddMinutes(model.FirstReminderTime.Minutes);
+                DateTime secondReminder = model.SecondReminder.AddHours(model.SecondReminderTime.Hours).AddMinutes(model.SecondReminderTime.Minutes);
+                DateTime escalate = model.Escalate.AddHours(model.EscalateTime.Hours).AddMinutes(model.EscalateTime.Minutes);
+
+                if (model.StartDate > model.EndDate)
+                {
+                    return BadRequest("Make sure Start Date is less than End Date");
+                }
+
+                if ((firstReminder >= secondReminder) || (firstReminder >= escalate))
+                {
+                    return BadRequest("Make sure First Reminder is always less than other reminders.");
+                }
+                else if((secondReminder <= firstReminder) || (secondReminder >= escalate))
+                {
+                    return BadRequest("Make sure Second Reminder is always less than Escalate reminder and bigger than First Reminder.");
+                }
+                else if ((escalate <= firstReminder) || (secondReminder >= escalate))
+                {
+                    return BadRequest("Make sure Escalate Reminder is always less than other reminders.");
+                }
+
                 Project project = new Project();
                 project.Name = model.Name;
                 project.ClientId = model.ClientId;
@@ -275,13 +303,15 @@ namespace StratisQAPI.Controllers
                 project.SurveyId = model.SurveyId;
                 project.Reference = model.Reference;
                 project.DateStamp = model.DateStamp;
-                project.FirstReminder = model.FirstReminder.AddHours(model.FirstReminderTime.Hours).AddMinutes(model.FirstReminderTime.Minutes);
-                project.SecondReminder = model.SecondReminder.AddHours(model.SecondReminderTime.Hours).AddMinutes(model.SecondReminderTime.Minutes);
-                project.Escalate = model.Escalate.AddHours(model.EscalateTime.Hours).AddMinutes(model.EscalateTime.Minutes);
+                project.FirstReminder = firstReminder;
+                project.SecondReminder = secondReminder;
+                project.Escalate = escalate;
                 project.EscalateEmail = model.EscalateEmail;
                 project.StartDate = model.StartDate;
                 project.EndDate = model.EndDate;
                 project.DateStamp = DateTime.Now;
+                project.ProjectIdentifier = Guid.NewGuid();
+                project.AssetNodeId = model.AssetNodeId;
 
                 _context.Projects.Add(project);
                 _context.SaveChanges();

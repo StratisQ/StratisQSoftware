@@ -12,6 +12,7 @@ namespace StratisQAPI.Entities
         public int RootAssetNodeId { get; set; }
         public int ClientId { get; set; }
         public int TenantId { get; set; }
+        public Guid AssetNodeIdentifier { get; set; }
         public int Height { get; set; }
         public string Name { get; set; }
         public int Size { get; set; }

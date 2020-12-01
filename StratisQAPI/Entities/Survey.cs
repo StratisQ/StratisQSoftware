@@ -10,6 +10,7 @@ namespace StratisQAPI.Entities
         public int SurveyId { get; set; }
         public string Name { get; set; }
         public string Version { get; set; }
+        public Guid SurveIdentifier { get; set; }
         public int RatingScale { get; set; }
         public bool Is360 { get; set; }
     }

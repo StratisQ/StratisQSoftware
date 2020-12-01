@@ -177,11 +177,22 @@ namespace StratisQAPI.Controllers
         }
 
         [HttpGet("tenants")]
-        public IActionResult GetTenants()
+        public IActionResult GetTenants(string UserId)
         {
             try
             {
-                List<Tenant> lTenants = _contextUsers.Tenants.ToList();
+                var user = _contextUsers.Users.FirstOrDefault(id => id.Id == UserId);
+                List<Tenant> lTenants = new List<Tenant>();
+
+                if (user.Email.ToLower() == "web@stratisq.com")
+                {
+                    lTenants = _contextUsers.Tenants.ToList();
+                }
+                else
+                {
+                    lTenants = _contextUsers.Tenants.Where(id => (id.TenantKey.ToUpper() != "DEFAULT".ToUpper()) && (id.TenantId == user.TenantId)).ToList();
+                }
+               
 
                 var tenants = lTenants.Select(result => new
                 {
@@ -341,16 +352,21 @@ namespace StratisQAPI.Controllers
 
                 //Find if user belongs to a tenant
 
-                Tenant tenant = _contextUsers.Tenants.FirstOrDefault(id => id.TenantKey.ToUpper() == model.Tenant.ToUpper());
+                Tenant tenant = _contextUsers.Tenants.FirstOrDefault(id => id.TenantKey.Trim().ToUpper() == model.Tenant.Trim().ToUpper());
 
                 if (tenant == null)
                 {
                     return BadRequest("Tenant does not exist, contact your administrator!");
                 }
 
-                if (tenant.TenantKey.ToUpper() != model.Tenant.ToUpper())
+                if (tenant.TenantKey.Trim().ToUpper() != model.Tenant.Trim().ToUpper())
                 {
                     return BadRequest("You do not belong to this tenant!");
+                }
+
+                if (user.TenantId != _contextUsers.Tenants.FirstOrDefault(id => id.TenantKey.Trim().ToUpper() == model.Tenant.Trim().ToUpper()).TenantId)
+                {
+                    return BadRequest("Error, You do not belong to this Tenant. Make sure Tenant Key is typed correctly!");
                 }
 
                 if (user != null)
@@ -381,8 +397,8 @@ namespace StratisQAPI.Controllers
                         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                         var token = new JwtSecurityToken(
-                            issuer: "https://stratisq.co.za:81",
-                            audience: "https://stratisq.co.za:80",
+                            issuer: _configuration["BackEndUrl"],
+                            audience: _configuration["FrontEndUrl"],
                             claims: claims,
                             expires: DateTime.UtcNow.AddDays(1),
                             signingCredentials: creds);
@@ -396,7 +412,6 @@ namespace StratisQAPI.Controllers
                             firstName = user.FirstName,
                             lastName = user.LastName,
                             isLocked = user.IsLocked,
-                            //role = _userManager.GetRolesAsync(user),
                             Tenant = _contextUsers.Tenants.FirstOrDefault(IdentityBuilder=>IdentityBuilder.TenantId == user.TenantId).TenantKey
                         };
 
